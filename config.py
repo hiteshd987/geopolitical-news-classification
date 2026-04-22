@@ -7,13 +7,19 @@ load_dotenv(override=True)
 # Configuration for OpenAI
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-# Let's print just the first 10 characters of the key to verify.
-if OPENAI_API_KEY:
-    print(f"API Key Loaded")
-else:
-    print("WARNING: No API Key found at all!")
+# Check key presence and print status
+if not OPENAI_API_KEY:
+    raise EnvironmentError(
+        "OPENAI_API_KEY not found. Add it to your .env file."
+    )
+print("API Key Loaded.")
 
-MODEL_NAME = "gpt-4o-mini" 
+MODEL_NAME = "gpt-4o-mini"
+
+EMBEDDING_MODEL = "text-embedding-3-small"
+MAX_CONTENT_TOKENS = 700
+NEGATIVE_SIM_THRESHOLD = 0.30
+TRIAGE_POSITIVE_THRESHOLD = 0.25
 
 # Stage 1 Triage keywords derived directly from SPEC.md
 EVENT_TAXONOMY = {

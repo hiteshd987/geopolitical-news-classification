@@ -1,7 +1,15 @@
 import re
+import os
 import math
+import pickle
 from openai import OpenAI
-from config import EVENT_TAXONOMY, OPENAI_API_KEY
+from config import (
+    EVENT_TAXONOMY,
+    OPENAI_API_KEY,
+    EMBEDDING_MODEL,           # was hardcoded as "text-embedding-3-small"
+    NEGATIVE_SIM_THRESHOLD,    # was hardcoded as 0.30
+    TRIAGE_POSITIVE_THRESHOLD  # was hardcoded as 0.25
+)
 
 # Initialize the OpenAI client
 client = OpenAI(api_key=OPENAI_API_KEY)
@@ -21,16 +29,39 @@ TAXONOMY_DESCRIPTIONS = [
 NEGATIVE_TAXONOMY_DESCRIPTIONS = [
     "A historical documentary, retrospective review, or historical analysis of past conflicts in the Middle East.",
     "Global stock market analysis, general crude oil price fluctuations, or macroeconomic financial reporting.",
-    "A purely local domestic crime, political election, or local cultural exhibition."
+    "A purely local domestic crime, political election, or local cultural exhibition.",
+    # "Academic research paper or policy think-tank analysis with no operational urgency.",
+    # "Satirical news article or opinion commentary with no factual reporting.",
+    # "Sports or entertainment news that incidentally mentions geographic locations."
 ]
+
+
 
 def get_embedding(text):
     text = text[:8000] 
-    response = client.embeddings.create(input=text, model="text-embedding-3-small")
+    response = client.embeddings.create(input=text, model=EMBEDDING_MODEL)
     return response.data[0].embedding
 
-taxonomy_embeddings = [get_embedding(desc) for desc in TAXONOMY_DESCRIPTIONS]
-negative_embeddings = [get_embedding(desc) for desc in NEGATIVE_TAXONOMY_DESCRIPTIONS]
+TAXONOMY_CACHE_PATH = "data/.taxonomy_cache.pkl"
+
+def _load_or_compute_taxonomy_embeddings():
+    if os.path.exists(TAXONOMY_CACHE_PATH):
+        print("Loading taxonomy embeddings from cache...")
+        with open(TAXONOMY_CACHE_PATH, 'rb') as f:
+            return pickle.load(f)
+
+    print("Computing taxonomy embeddings (first run only)...")
+    pos = [get_embedding(desc) for desc in TAXONOMY_DESCRIPTIONS]
+    neg = [get_embedding(desc) for desc in NEGATIVE_TAXONOMY_DESCRIPTIONS]
+
+    os.makedirs("data", exist_ok=True)
+    with open(TAXONOMY_CACHE_PATH, 'wb') as f:
+        pickle.dump((pos, neg), f)
+
+    print("Taxonomy embeddings cached.")
+    return pos, neg
+
+taxonomy_embeddings, negative_embeddings = _load_or_compute_taxonomy_embeddings()
 
 def cosine_similarity_pure(vec1, vec2):
     dot_product = sum(a * b for a, b in zip(vec1, vec2))
@@ -39,7 +70,7 @@ def cosine_similarity_pure(vec1, vec2):
     if magnitude1 == 0 or magnitude2 == 0: return 0.0
     return dot_product / (magnitude1 * magnitude2)
 
-def advanced_triage(content, threshold=0.25):
+def advanced_triage(content, threshold=TRIAGE_POSITIVE_THRESHOLD):
     content_lower = content.lower()
     matched_keywords = set()
     
@@ -62,7 +93,7 @@ def advanced_triage(content, threshold=0.25):
         max_neg = max(neg_similarities)
         
         # If it sounds more like a history lesson/stock update than an attack, block it.
-        if max_neg > max_pos and max_neg > 0.30:
+        if max_neg > max_pos and max_neg > NEGATIVE_SIM_THRESHOLD:
             return [] # Blocked by negative filter
             
         if max_pos >= threshold:

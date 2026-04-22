@@ -9,12 +9,25 @@ def calculate_risk_score(physical, escalation, evidence):
 def calculate_confidence(evidence, signal, event_labels, rationale):
     """Calculates categorical confidence based on the specified formula."""
     
-    # Derive model certainty proxy
-    model_score = 0.5 # Default baseline
-    if len(event_labels) > 0 and len(event_labels) <= 2 and len(rationale) > 20:
-        model_score = 0.9 # Precise labels with solid rationale
-    elif len(event_labels) > 2:
-        model_score = 0.3 # Penalize for assigning too many labels (indecision)
+   # Base: how precise were the event labels?
+    if len(event_labels) == 0:
+        model_score = 0.2   # No labels = model found nothing definitive
+    elif len(event_labels) == 1:
+        model_score = 0.9   # Single precise label = high certainty
+    elif len(event_labels) == 2:
+        model_score = 0.6   # Two labels = moderate certainty
+    else:
+        model_score = 0.2   # 3+ labels = model is hedging = low certainty
+
+    # Boost if rationale contains specific factual language
+    HIGH_QUALITY_TERMS = [
+        'confirmed', 'reported', 'deployed', 'launched', 'targeted',
+        'destroyed', 'halted', 'seized', 'attacked', 'struck',
+        'according to', 'sources say', 'officials stated'
+    ]
+    term_hits = sum(1 for term in HIGH_QUALITY_TERMS if term in rationale.lower())
+    quality_boost = min(term_hits * 0.05, 0.15)  # max +0.15 boost
+    model_score = min(model_score + quality_boost, 1.0)
         
     score = (0.5 * evidence) + (0.3 * signal) + (0.2 * model_score)
     

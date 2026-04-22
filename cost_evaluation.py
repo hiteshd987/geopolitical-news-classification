@@ -36,7 +36,7 @@ def calculate_costs(articles):
     avg_new_input += 150
     
     # Output token estimation (remains an estimate since we can't know exactly 
-    # what the LLM will generate until it runs, but we cap it at 350)
+    # what the LLM will generate until it runs, but we cap it)
     avg_old_output = 250 
     avg_new_output = 150 
     
