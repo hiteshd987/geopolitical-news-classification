@@ -1,0 +1,26 @@
+# Environments
+venv/
+.venv/
+env/
+ENV/
+
+# API Keys & Secrets (CRITICAL - Never upload these)
+.env
+
+# Python Artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Generated Output Files
+# (This keeps the outputs folder, but ignores the giant CSVs inside it)
+# outputs/*.csv
+
+# OS System Files
+.DS_Store
+Thumbs.db
+
+# IDE & Editor Folders
+.vscode/
+.idea/
