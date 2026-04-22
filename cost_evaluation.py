@@ -1,7 +1,7 @@
 import random
-from io_csv import read_csv
-from triage import advanced_triage
-from classifier import classify_article
+from src.io_csv import read_csv
+from src.triage import advanced_triage
+from src.classifier import classify_article
 import tiktoken
 
 def calculate_costs(articles):

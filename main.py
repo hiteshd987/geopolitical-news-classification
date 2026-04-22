@@ -2,11 +2,11 @@ import tiktoken
 import argparse
 import os
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from io_csv import read_csv, write_csv
-from triage import advanced_triage as triage_article
-from classifier import classify_article
-from scoring import calculate_risk_score, calculate_confidence, calculate_fallback_scores
-from config import OPENAI_API_KEY
+from src.io_csv import read_csv, write_csv
+from src.triage import advanced_triage as triage_article
+from src.classifier import classify_article
+from src.scoring import calculate_risk_score, calculate_confidence, calculate_fallback_scores
+from src.config import OPENAI_API_KEY
 
 _encoder = tiktoken.encoding_for_model("gpt-4o-mini")
 

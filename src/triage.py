@@ -3,7 +3,7 @@ import os
 import math
 import pickle
 from openai import OpenAI
-from config import (
+from src.config import (
     EVENT_TAXONOMY,
     OPENAI_API_KEY,
     EMBEDDING_MODEL,           # was hardcoded as "text-embedding-3-small"

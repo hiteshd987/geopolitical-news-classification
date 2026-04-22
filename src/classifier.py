@@ -3,8 +3,8 @@ import time
 from pydantic import BaseModel, Field
 from typing import List
 from openai import OpenAI
-from config import OPENAI_API_KEY, MODEL_NAME
-from prompt_builder import build_classification_prompt
+from src.config import OPENAI_API_KEY, MODEL_NAME
+from src.prompt_builder import build_classification_prompt
 
 client = OpenAI(api_key=OPENAI_API_KEY)
 

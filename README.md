@@ -35,14 +35,6 @@ The system prioritises **high precision** by keeping ambiguous articles default 
 ```
 geopolitical-risk-pipeline/
 │
-├── main.py                 # Async execution pipeline (Triage → Classify → Export)
-├── config.py               # Centralised constants, taxonomy, model config, thresholds
-├── io_csv.py               # CSV read/write with column validation
-├── triage.py               # Stage 1: Hybrid keyword + embedding filter with disk cache
-├── prompt_builder.py       # Chain-of-Thought prompt with calibration rules
-├── classifier.py           # Stage 2: OpenAI API calls with Structured Outputs + retry
-├── scoring.py              # Risk and Confidence score computation + fallback
-├── cost_evaluation.py      # Standalone cost + evaluation report
 ├── data/
 │   └── newsdata_oil.csv    # Raw input dataset
 ├── docs/
@@ -51,6 +43,15 @@ geopolitical-risk-pipeline/
 │   └── IMPLEMENTATION_PLAN.md
 ├── outputs/
 │   └── result.csv          # Final enriched output with risk scores
+├── src/
+|   └── config.py               # Centralised constants, taxonomy, model config, thresholds
+│   └── io_csv.py               # CSV read/write with column validation
+|   └── triage.py               # Stage 1: Hybrid keyword + embedding filter with disk cache
+|   └── prompt_builder.py       # Chain-of-Thought prompt with calibration rules
+|   └── classifier.py           # Stage 2: OpenAI API calls with Structured Outputs + retry
+|   └── scoring.py              # Risk and Confidence score computation + fallback
+├── main.py                 # Async execution pipeline (Triage → Classify → Export)
+├── cost_evaluation.py      # Standalone cost + evaluation report
 ├── requirements.txt        # Pinned dependencies
 ├── .env                    # API key (not committed — see Configuration)
 └── README.md
